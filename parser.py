@@ -6,7 +6,7 @@ import logging
 # Настройка logging
 logging.basicConfig(filename='./ogrn.log', level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 LOCAL_NEW_FILE_COMPANY = './company.csv'
 URL_NEW_FILE_COMPANY = 'https://opendata.trudvsem.ru/csv/company.csv'
@@ -22,7 +22,8 @@ def save_new_file_company(url):
             file.write(response.content)
         print(f"File saved as {local_filename}")
     else:
-        print(f"Failed to download the file. Status code: {response.status_code}")
+        print(f"Failed to download the file. "
+              f"Status code: {response.status_code}")
 
 
 def input_new_ogrn():
@@ -37,8 +38,8 @@ def input_new_ogrn():
         output_file = 'in_all_new_file.csv'
         ogrn_values.to_csv(output_file, index=False)
 
-        print(f'The file {file_path} with the new data has been processed successfully')
-        #logger.info(f'The file {file_path}  with the new data has been processed successfully')
+        print(f'The file {file_path} with the new data '
+              f'has been processed successfully')
         return ogrn_values
     except Exception as e:
         print(f'Error processing the file {file_path} : {e}')
@@ -52,8 +53,8 @@ def comparison_ogrn():
 
     # Проверка наличия файла
     if not os.path.exists(file_path_verified):
-        print(f'File not found: {file_path_verified}. Creating an empty file.')
-        #logger.info(f'File not found: {file_path_verified}. Creating an empty file.')
+        print(f'File not found: {file_path_verified}. '
+              f'Creating an empty file.')
         pd.DataFrame(columns=['ogrn']).to_csv(file_path_verified, index=False)
 
     df_verified = pd.read_csv(file_path_verified)
@@ -76,7 +77,7 @@ def get_company_info(ogrn):
         return data['data']['hiTechComplex']
     except requests.RequestException as e:
         print(f'Error fetching data for OGRN {ogrn}: {e}')
-        #logger.info(f'Error fetching data for OGRN {ogrn}: {e}')
+        # logger.info(f'Error fetching data for OGRN {ogrn}: {e}')
         return None
 
 
@@ -88,7 +89,8 @@ def save_to_csv(data_list, file_name):
 
 
 def main():
-    """Проходит циклом по новым записям, отправляет запрос к апи. Каждые 500 значений сохраняет результат"""
+    """Проходит циклом по новым записям, отправляет запрос
+    к апи. Каждые 500 значений сохраняет результат"""
     hiTechComplex_list = []
     verified_ogrn_list = []
 
@@ -103,18 +105,21 @@ def main():
         if hiTechComplex:
             hiTechComplex_list.append(ogrn)
 
-        # Каждые 500 проверенных записей сохраняем результат в файл CSV, чтобы не потерять данные
+        # Каждые 500 проверенных записей сохраняем
+        # результат в файл CSV, чтобы не потерять данные
         if i % 500 == 0:
             save_to_csv(verified_ogrn_list, 'verified_ogrn.csv')
             save_to_csv(hiTechComplex_list, 'hiTechComplex.csv')
-            logger.info(f'checked values: {i} / found values: {len(hiTechComplex_list)}')
+            logger.info(f'checked values: {i} / '
+                        f'found values: {len(hiTechComplex_list)}')
             hiTechComplex_list = []
             verified_ogrn_list = []
 
     # Сохранение остатка результатов в файл CSV
     save_to_csv(verified_ogrn_list, 'verified_ogrn.csv')
     save_to_csv(hiTechComplex_list, 'hiTechComplex.csv')
-    logger.info(f'checked values: {i} / found values: {len(hiTechComplex_list)}')
+    logger.info(f'checked values: {i} / '
+                f'found values: {len(hiTechComplex_list)}')
 
 
 if __name__ == "__main__":
